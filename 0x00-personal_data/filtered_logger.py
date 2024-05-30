@@ -52,14 +52,41 @@ def get_logger() -> logging.Logger:
 
 def get_db() -> MySQLConnection:
     """returns a connector to the database"""
-    db_username = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
-    db_password = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
+    db_user_name = os.getenv('PERSONAL_DATA_DB_USERNAME', 'root')
+    db_passwd = os.getenv('PERSONAL_DATA_DB_PASSWORD', '')
     db_host = os.getenv('PERSONAL_DATA_DB_HOST', 'localhost')
-    db_name = os.getenv('PERSONAL_DATA_DB_NAME', '')
+    db_name = os.getenv('PERSONAL_DATA_DB_NAME')
 
-    return mysql.connector.connect(
-        host=db_host,
-        user=db_username,
-        password=db_password,
-        database=db_name
-    )
+    mydb = mysql.connector.connect(
+            host=db_host,
+            user=db_user_name,
+            password=db_passwd,
+            database=db_name)
+    return mydb
+
+
+def main() -> None:
+    """Read and filter data"""
+    formatter = RedactingFormatter(fields=("phone",
+                                           "name",
+                                           "email",
+                                           "ssn",
+                                           "password"))
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users")
+    for row in cursor:
+        log_record = logging.LogRecord("my_logger",
+                                       logging.INFO,
+                                       None,
+                                       None,
+                                       row,
+                                       None,
+                                       None)
+        print(formatter.format(log_record))
+    cursor.close()
+    db.close()
+
+
+if __name__ == '__main__':
+    main()
