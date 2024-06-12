@@ -61,7 +61,8 @@ def logout():
 
 @app.route('/profile', methods=['GET'], strict_slashes=False)
 def profile():
-    """Returns User profile if user exists
+    """
+    Get user profile
     """
     session_id = request.cookies.get('session_id')
     if not session_id:
