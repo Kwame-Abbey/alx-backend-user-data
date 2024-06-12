@@ -1,14 +1,28 @@
 #!/usr/bin/env python3
 """Defines a Basic Flask App"""
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from auth import Auth
 
+AUTH = Auth()
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/', strict_slashes=False)
 def home():
     """Returns a json message"""
     return jsonify({"message": "Bienvenue"})
+
+
+@app.route('/users', methods=['POST'], strict_slashes=False)
+def register_user():
+    """Registers a new user"""
+    user_email = request.form.get('email')
+    user_password = request.form.get('password')
+    try:
+        AUTH.register_user(email=user_email, password=user_password)
+        return jsonify({"email": user_email, "message": "user created"})
+    except ValueError:
+        return jsonify({"message": "email already registered"}), 400
 
 
 if __name__ == "__main__":
