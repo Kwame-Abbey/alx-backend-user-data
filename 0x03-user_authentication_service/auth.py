@@ -2,6 +2,7 @@
 """Defines a hashed password
 method using brcpyt package"""
 import bcrypt
+import uuid
 from db import DB
 from user import User
 from sqlalchemy.orm.exc import NoResultFound
@@ -17,6 +18,12 @@ def _hash_password(password: str) -> bytes:
     """
     hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
     return hashed_password
+
+
+def _generate_uuid() -> str:
+    """Return a string representation of a new UUID"""
+    random_id = str(uuid.uuid4())
+    return random_id
 
 
 class Auth:
